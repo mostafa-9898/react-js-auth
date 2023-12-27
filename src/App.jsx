@@ -1,34 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Route, Routes } from "react-router-dom"
+import Layout from "./components/Layout/Layout"
+import Login from "./pages/LoginPage/Login"
+import Missing from './pages/MissingPage/Missing'
+import Unauthorized from "./pages/UnauthorizedPage/Unauthorized"
+import Home from "./pages/HomePage/Home"
+import RequiredAuth from "./components/RequiredAuth"
+import { ROLES } from "./utils/Roles"
+import About from "./pages/AboutPage/About"
+import Adminestor from './pages/Adminestor/Adminestor'
+import Chat from './pages/ChatPage/Chat'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Routes>
+      <Route path="/" element={<Layout />} >
+
+        {/* --- public routes --- */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+
+        {/* --- allowed routes for (Visitor) role --- */}
+        <Route element={<RequiredAuth allowedRoles={[ROLES.Visitor]} />}>
+          <Route path="/" element={<Home />} />
+        </Route>
+
+        {/* --- allowed routes for (Editor) role */}
+        <Route element={<RequiredAuth allowedRoles={[ROLES.Editor]} />}>
+          <Route path="/about" element={<About />} />
+        </Route>
+
+        {/* --- allowed routes for (Admin) role --- */}
+        <Route element={<RequiredAuth allowedRoles={[ROLES.Admin]} />}>
+          <Route path="/adminestor" element={<Adminestor />} />
+        </Route>
+
+        {/* --- allowed routes for (Admin and Editor) roles --- */}
+        <Route element={<RequiredAuth allowedRoles={[ROLES.Admin, ROLES.Editor]} />}>
+          <Route path="/chat" element={<Chat />} />
+        </Route>
+
+        {/* --- catch all routes --- */}
+        <Route path="*" element={<Missing />} />
+
+      </Route>
+    </Routes>
   )
 }
 
